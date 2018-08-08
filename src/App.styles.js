@@ -46,13 +46,13 @@ export const Foreground = glam.div({
 
 export const Title = glam.h1({
   fontWeight: '300',
-  fontSize: 48,
+  fontSize: 40,
   letterSpacing: 1,
 });
 
 export const Description = glam.p({
   fontWeight: '200',
-  fontSize: 22,
+  fontSize: 18,
   lineHeight: 1.6,
 });
 
