@@ -1,0 +1,30 @@
+<html>
+  <body style="display: flex; flex-flow: column nowrap; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
+    <div id="preview" style="background-color: #444; background-position: center; background-size: cover; width: 500px; height: 500px;"></div>
+    <button id="confirm" style="font-size: 18px; margin: 20px; padding: 10px; background: none; border: 1px solid #444; border-radius: 100px;">This one's good.</button>
+    <script>
+        if (window.location.search) {
+          const search = {};
+          window.location.search.slice(1).split('&').forEach(function (pair) {
+            const split = pair.split('=');
+            search[split[0]] = split[1];
+          });
+
+          if (search.url) {
+            document.getElementById('preview').style.backgroundImage = 'url(' + search.url + ')';
+            document.getElementById('confirm').addEventListener('click', function () {
+              const formData = new FormData();
+              formData.append('image', search.url);
+              formData.append('album', 'SXgFnlgc75XYqIe');
+              
+              fetch('https://api.imgur.com/3/image', {
+                method: 'POST',
+                headers: { Authorization: 'Client-ID 25ad7792313b146' },
+                body: formData,
+              });
+            });
+          }
+        }
+    </script>
+  </body>
+</html>
