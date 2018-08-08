@@ -7,7 +7,6 @@ const clientId = '25ad7792313b146';
 const Authorization = `Client-ID ${clientId}`;
 
 const albumId = 'xIOhTbo';
-const albumDeleteHash = 'SXgFnlgc75XYqIe';
 
 class App extends Component {
   state = {
@@ -43,13 +42,23 @@ class App extends Component {
       this.setState({ loading: true });
       const formData = new FormData();
       formData.append('image', imageFile);
-      formData.append('album', albumDeleteHash);
 
-      const upload = await (await fetch(`https://api.imgur.com/3/image`, {
+      const upload = await (await fetch('https://api.imgur.com/3/image', {
         method: 'POST',
         headers: { Authorization },
         body: formData,
       })).json();
+      const verifyFormData = new FormData();
+      verifyFormData.append('form-name', 'thumbs');
+      verifyFormData.append('imageId', upload.data.id);
+      verifyFormData.append('imageDeleteHash', upload.data.deletehash);
+      verifyFormData.append('imageUrl', upload.data.link);
+      verifyFormData.append('allowUrl', `https://thumbsupforjigar.tk/addToAlbum.html?id=${upload.data.id}&hash=${upload.data.deletehash}`);
+
+      fetch('/', {
+        method: 'POST',
+        body: verifyFormData,
+      });
 
       if (upload.success) {
         this.setState({ images: [...this.state.images, upload.data.link], loading: false });
