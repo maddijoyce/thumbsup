@@ -1,17 +1,31 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import { Container, Background, Foreground, ThumbUp, Title, Description, Row, Button, FileUpload, Loading, Spinner } from './App.styles';
-import Icon from './Icon';
+import {
+  Container,
+  Background,
+  Foreground,
+  ThumbUp,
+  Title,
+  Description,
+  Row,
+  Button,
+  FileUpload,
+  Loading,
+  Spinner
+} from "./App.styles";
+import Icon from "./Icon";
 
-const clientId = '25ad7792313b146';
+const clientId = "25ad7792313b146";
 const Authorization = `Client-ID ${clientId}`;
 
-const albumId = 'xIOhTbo';
+const albumId = "xIOhTbo";
+
+const nearestSquare = number => Math.ceil(Math.sqrt(number));
 
 class App extends Component {
   state = {
     loading: false,
-    images: [],
+    images: []
   };
 
   constructor(props) {
@@ -20,70 +34,97 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    const images = await (await fetch(`https://api.imgur.com/3/album/${albumId}/images?cb=${+Date.now()}`, {
-      method: 'GET',
-      headers: { Authorization },
-    })).json();
+    const images = await (await fetch(
+      `https://api.imgur.com/3/album/${albumId}/images?cb=${+Date.now()}`,
+      {
+        method: "GET",
+        headers: { Authorization }
+      }
+    )).json();
 
     if (images.success) {
       this.setState({
-        images: images.data.map(({ link }) => (link)),
+        images: images.data.map(({ link }) => link)
       });
     }
   }
 
   selectFile = () => {
-    this.fileUpload && this.fileUpload.current && this.fileUpload.current.click();
+    this.fileUpload &&
+      this.fileUpload.current &&
+      this.fileUpload.current.click();
   };
 
-  uploadFile = async (event) => {
+  uploadFile = async event => {
     const imageFile = event.currentTarget.files[0];
     if (imageFile) {
       this.setState({ loading: true });
       const formData = new FormData();
-      formData.append('image', imageFile);
+      formData.append("image", imageFile);
 
-      const upload = await (await fetch('https://api.imgur.com/3/image', {
-        method: 'POST',
+      const upload = await (await fetch("https://api.imgur.com/3/image", {
+        method: "POST",
         headers: { Authorization },
-        body: formData,
+        body: formData
       })).json();
       const verifyFormData = new FormData();
-      verifyFormData.append('form-name', 'thumbs');
-      verifyFormData.append('imageId', upload.data.id);
-      verifyFormData.append('imageDeleteHash', upload.data.deletehash);
-      verifyFormData.append('imageUrl', upload.data.link);
-      verifyFormData.append('allowUrl', `https://thumbsupforjigar.tk/addToAlbum.html?url=${upload.data.link}`);
+      verifyFormData.append("form-name", "thumbs");
+      verifyFormData.append("imageId", upload.data.id);
+      verifyFormData.append("imageDeleteHash", upload.data.deletehash);
+      verifyFormData.append("imageUrl", upload.data.link);
+      verifyFormData.append(
+        "allowUrl",
+        `https://thumbsupforjigar.tk/addToAlbum.html?url=${upload.data.link}`
+      );
 
-      fetch('/', {
-        method: 'POST',
-        body: verifyFormData,
+      fetch("/", {
+        method: "POST",
+        body: verifyFormData
       });
 
       if (upload.success) {
-        this.setState({ images: [...this.state.images, upload.data.link], loading: false });
+        this.setState({
+          images: [...this.state.images, upload.data.link],
+          loading: false
+        });
       }
     }
   };
 
   render() {
-    const nearestSquare = Math.ceil(Math.sqrt(this.state.images.length));
-    const template = Array.apply(null, Array(nearestSquare)).map(() => 'auto').join(' ');
+    let width = nearestSquare(this.state.images.length);
+    width += nearestSquare(width);
+    const template = Array.apply(null, Array(width))
+      .map(() => "auto")
+      .join(" ");
 
     return (
       <Container>
         <Background template={template}>
-          {this.state.images.map((i) => (<ThumbUp key={i} src={i} />))}
+          {this.state.images.map(i => <ThumbUp key={i} src={i} />)}
         </Background>
         <Foreground>
           <Title>#thumbsupforjigar</Title>
-          <Description>Let's throw our support behind Jigar, one thumb at a time!<br />Click below to upload.</Description>
+          <Description>
+            Let's throw our support behind Jigar, one thumb at a time!<br />Click
+            below to upload.
+          </Description>
           <Row>
-            <Button onClick={this.selectFile} ><Icon icon="Upload" /></Button>
-            <FileUpload innerRef={this.fileUpload} onChange={this.uploadFile} type="file" />
+            <Button onClick={this.selectFile}>
+              <Icon icon="Upload" />
+            </Button>
+            <FileUpload
+              innerRef={this.fileUpload}
+              onChange={this.uploadFile}
+              type="file"
+            />
           </Row>
         </Foreground>
-        {this.state.loading && <Loading><Spinner /></Loading>}
+        {this.state.loading && (
+          <Loading>
+            <Spinner />
+          </Loading>
+        )}
       </Container>
     );
   }
