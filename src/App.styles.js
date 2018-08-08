@@ -69,6 +69,11 @@ export const shadowFade = keyframes({
   '90%': { boxShadow: '0 0 4px 2px rgba(41, 182, 246, 0)' },
 });
 
+export const spins = keyframes({
+  '0%': { transform: 'rotate(0deg)' },
+  '100%': { transform: 'rotate(360deg)' },
+});
+
 export const Button = glam.button({
   '&:focus': {
     animation: `${shadowFade} 0.4s 1 ease-in-out`,
@@ -94,3 +99,24 @@ export const FileUpload = glam.input({
   top: -5000,
   left: -5000,
 });
+
+export const Loading = glam.div({
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  alignItems: 'center',
+  justifyContent: 'center',
+  display: 'flex',
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+  zIndex: 100,
+});
+
+export const Spinner = glam.div({
+  animation: `${spins} 1s linear infinite`,
+  border: '3px solid white',
+  borderTopColor: '#03A9F4',
+  borderRadius: '50%',
+  height: 80,
+  width: 80,
+  margin: '1rem',
+})

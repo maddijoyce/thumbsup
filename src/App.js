@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Container, Background, Foreground, ThumbUp, Title, Description, Row, Button, FileUpload } from './App.styles';
+import { Container, Background, Foreground, ThumbUp, Title, Description, Row, Button, FileUpload, Loading, Spinner } from './App.styles';
 import Icon from './Icon';
 
 const clientId = '25ad7792313b146';
@@ -11,6 +11,7 @@ const albumDeleteHash = 'SXgFnlgc75XYqIe';
 
 class App extends Component {
   state = {
+    loading: false,
     images: [],
   };
 
@@ -39,6 +40,7 @@ class App extends Component {
   uploadFile = async (event) => {
     const imageFile = event.currentTarget.files[0];
     if (imageFile) {
+      this.setState({ loading: true });
       const formData = new FormData();
       formData.append('image', imageFile);
       formData.append('album', albumDeleteHash);
@@ -50,7 +52,7 @@ class App extends Component {
       })).json();
 
       if (upload.success) {
-        this.setState({ images: [...this.state.images, upload.data.link] });
+        this.setState({ images: [...this.state.images, upload.data.link], loading: false });
       }
     }
   };
@@ -72,6 +74,7 @@ class App extends Component {
             <FileUpload innerRef={this.fileUpload} onChange={this.uploadFile} type="file" />
           </Row>
         </Foreground>
+        {this.state.loading && <Loading><Spinner /></Loading>}
       </Container>
     );
   }
