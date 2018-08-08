@@ -68,7 +68,7 @@ class App extends Component {
         </Background>
         <Foreground>
           <Title>#thumbsupforjigar</Title>
-          <Description>Let's throw our support behind Jigar, one thumb at a time!<br />Drag your photo here, or click below, to upload.</Description>
+          <Description>Let's throw our support behind Jigar, one thumb at a time!<br />Click below to upload.</Description>
           <Row>
             <Button onClick={this.selectFile} ><Icon icon="Upload" /></Button>
             <FileUpload innerRef={this.fileUpload} onChange={this.uploadFile} type="file" />
