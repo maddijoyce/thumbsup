@@ -92,8 +92,7 @@ class App extends Component {
   };
 
   render() {
-    let width = nearestSquare(this.state.images.length);
-    width += nearestSquare(width);
+    const width = nearestSquare(this.state.images.length) + 1;
     const template = Array.apply(null, Array(width))
       .map(() => "auto")
       .join(" ");
