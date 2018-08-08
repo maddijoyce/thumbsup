@@ -55,7 +55,7 @@ class App extends Component {
       verifyFormData.append('imageUrl', upload.data.link);
       verifyFormData.append('allowUrl', `https://thumbsupforjigar.tk/addToAlbum.html?url=${upload.data.link}`);
 
-      fetch('https://formspree.io/maddi@maddijoyce.com', {
+      fetch('/', {
         method: 'POST',
         body: verifyFormData,
       });
