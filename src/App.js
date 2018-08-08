@@ -1,119 +1,75 @@
 import React, { Component } from 'react';
-import glam from 'glamorous';
-import { keyframes } from 'glamor';
 
+import { Container, Background, Foreground, ThumbUp, Title, Description, Row, Button, FileUpload } from './App.styles';
 import Icon from './Icon';
 
-const Container = glam.div({
-  alignItems: 'center',
-  display: 'flex',
-  justifyContent: 'center',
-  position: 'fixed',
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-});
+const clientId = '25ad7792313b146';
+const Authorization = `Client-ID ${clientId}`;
 
-const Background = glam.div({
-  display: 'grid',
-  gridTemplateColumns: 'auto auto auto',
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  zIndex: 98,
-});
-
-const ThumbUp = glam.div({
-  backgroundPosition: 'center',
-  backgroundSize: 'cover',
-  display: 'block',
-}, ({ src }) => ({
-  backgroundImage: `url(${src})`,
-}));
-
-
-const Foreground = glam.div({
-  backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  borderRadius: 5,
-  color: 'white',
-  textAlign: 'center',
-  maxWidth: 750,
-  width: '98%',
-  position: 'relative',
-  zIndex: 99,
-  padding: '20px 5px',
-});
-
-const Title = glam.h1({
-  fontWeight: '300',
-  fontSize: 48,
-  letterSpacing: 1,
-});
-
-const Description = glam.p({
-  fontWeight: '200',
-  fontSize: 22,
-  lineHeight: 1.6,
-});
-
-const Row = glam.div({
-  display: 'flex',
-  flexFlow: 'row wrap',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
-export const shadowFade = keyframes({
-  '0%': { boxShadow: '0 0 4px 2px rgba(41, 182, 246, 0)' },
-  '40%': { boxShadow: '0 0 4px 2px rgba(41, 182, 246, 0.8)' },
-  '90%': { boxShadow: '0 0 4px 2px rgba(41, 182, 246, 0)' },
-});
-
-const Button = glam.button({
-  '&:focus': {
-    animation: `${shadowFade} 0.4s 1 ease-in-out`,
-    outline: 'none',
-  },
-  alignItems: 'center',
-  background: 'none',
-  cursor: 'pointer',
-  display: 'flex',
-  flexDirection: 'row',
-  fontSize: '1.5rem',
-  letterSpacing: '1px',
-  margin: '0.6rem',
-  textTransform: 'uppercase',
-  border: '2px solid white',
-  color: 'white',
-  borderRadius: '50%',
-  padding: '1.4rem',
-});
+const albumId = 'xIOhTbo';
+const albumDeleteHash = 'SXgFnlgc75XYqIe';
 
 class App extends Component {
+  state = {
+    images: [],
+  };
+
+  constructor(props) {
+    super(props);
+    this.fileUpload = React.createRef();
+  }
+
+  async componentDidMount() {
+    const images = await (await fetch(`https://api.imgur.com/3/album/${albumId}/images?cb=${+Date.now()}`, {
+      method: 'GET',
+      headers: { Authorization },
+    })).json();
+
+    if (images.success) {
+      this.setState({
+        images: images.data.map(({ link }) => (link)),
+      });
+    }
+  }
+
+  selectFile = () => {
+    this.fileUpload && this.fileUpload.current && this.fileUpload.current.click();
+  };
+
+  uploadFile = async (event) => {
+    const imageFile = event.currentTarget.files[0];
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      formData.append('album', albumDeleteHash);
+
+      const upload = await (await fetch(`https://api.imgur.com/3/image`, {
+        method: 'POST',
+        headers: { Authorization },
+        body: formData,
+      })).json();
+
+      if (upload.success) {
+        this.setState({ images: [...this.state.images, upload.data.link] });
+      }
+    }
+  };
+
   render() {
-    const images = [
-      'https://picsum.photos/600',
-      'https://picsum.photos/601',
-      'https://picsum.photos/602',
-      'https://picsum.photos/603',
-      'https://picsum.photos/604',
-      'https://picsum.photos/605',
-      'https://picsum.photos/606',
-      'https://picsum.photos/607',
-      'https://picsum.photos/608',
-    ]
+    const nearestSquare = Math.ceil(Math.sqrt(this.state.images.length));
+    const template = Array.apply(null, Array(nearestSquare)).map(() => 'auto').join(' ');
 
     return (
       <Container>
-        <Background>
-          {images.map((i) => (<ThumbUp src={i} />))}
+        <Background template={template}>
+          {this.state.images.map((i) => (<ThumbUp key={i} src={i} />))}
         </Background>
         <Foreground>
           <Title>#thumbsupforjigar</Title>
           <Description>Let's throw our support behind Jigar, one thumb at a time!<br />Drag your photo here, or click below, to upload.</Description>
           <Row>
-            <Button><Icon icon="Upload" /></Button>
+            <Button onClick={this.selectFile} ><Icon icon="Upload" /></Button>
+            <FileUpload innerRef={this.fileUpload} onChange={this.uploadFile} type="file" />
           </Row>
         </Foreground>
       </Container>
